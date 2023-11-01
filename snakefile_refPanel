@@ -1,0 +1,78 @@
+#SAMPLES = ["rubythroated_SRR12247318", "blackchinned_SRR12247328"]
+
+
+################################
+# Align, sort and index fastqs
+################################
+
+rule bwa_sp1:
+	input:
+		ref="/scratch/user/sblain/hummer_aims/identifyAIMs/hummer_refs/rubythroated_SRR12247324.consensus.fasta",
+		fq1="{sample}_1.fastq",
+		fq2="{sample}_2.fastq"
+	output:
+		sam="{sample}.sp1.sam"
+	shell:
+		"bwa mem -M {input.ref} {input.fq1} {input.fq2} > {output.sam}"
+		
+rule bwa_sp2:
+	input:
+		ref="/scratch/user/sblain/hummer_aims/identifyAIMs/hummer_refs/blackchinned_SRR12247329.consensus.fasta",
+		fq1="{sample}_1.fastq",
+		fq2="{sample}_2.fastq"
+	output:
+		sam="{sample}.sp2.sam"
+	shell:
+		"bwa mem -M {input.ref} {input.fq1} {input.fq2} > {output.sam}"
+		
+rule sam_to_bam:
+	input:
+		sp1="{sample}.sp1.sam",
+		sp2="{sample}.sp2.sam"
+	output:
+		sp1="{sample}.sp1.bam",
+		sp2="{sample}.sp2.bam"
+	shell:
+		"""
+		samtools view -Sb {input.sp1} > {output.sp1}
+		samtools view -Sb {input.sp2} > {output.sp2}
+		"""
+
+rule clean_sam:
+	input:
+		sp1="{sample}.sp1.bam",
+		sp2="{sample}.sp2.bam"
+	output:
+		sp1="{sample}.sp1.clean.bam",
+		sp2="{sample}.sp2.clean.bam"
+	shell:
+		"""
+		java -jar $EBROOTPICARD/picard.jar CleanSam INPUT="input.sp1" OUTPUT="output.sp1"
+		java -jar $EBROOTPICARD/picard.jar CleanSam INPUT="input.sp2" OUTPUT="output.sp2"
+		"""
+		
+rule sort_sam:
+	input:
+		sp1="{sample}.sp1.clean.bam",
+		sp2="{sample}.sp2.clean.bam"
+	output:
+		sp1="{sample}.sp1.sort.bam",
+		sp2="{sample}.sp2.sort.bam"
+	shell:
+		"""
+		java -jar $EBROOTPICARD/picard.jar SortSam INPUT="input.sp1" OUTPUT="output.sp1"
+		java -jar $EBROOTPICARD/picard.jar SortSam INPUT="input.sp2" OUTPUT="output.sp2"
+		"""
+		
+rule sort_read_groups:
+	input:
+		sp1="{sample}.sp1.sort.bam",
+		sp2="{sample}.sp2.sort.bam"
+	output:
+		sp1="{sample}.sp1.sortrg.bam",
+		sp2="{sample}.sp2.sortrg.bam"
+	shell:
+		"""
+		java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups INPUT="input.sp1" OUTPUT="output.sp1"
+		java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups INPUT="input.sp2" OUTPUT="output.sp2"
+		"""

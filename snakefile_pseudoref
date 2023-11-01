@@ -116,6 +116,15 @@ rule bcftools_filter:
 	shell:
 		"bcftools view --exclude-types indels {input.vcfIn} | bcftools view --genotype hom | bcftools view -e 'QUAL < 30 || DP < 7 || DP > 60 || MQ < 40 ' -o {output.vcfOut}"
 
+#index vcf file
+rule tabix_index:
+	input:
+		vcf="{sample}.sorted.q30.filtered.vcf.gz"
+	output:
+		tbi="{sample}.sorted.q30.filtered.vcf.gz.tbi"
+	shell:
+		"tabix {input.vcf}"
+
 ################################
 # get a consensus sequence (pseudoref)
 ################################
@@ -123,9 +132,40 @@ rule bcftools_filter:
 rule bcftools_consensus:
 	input:
 		vcf="{sample}.sorted.q30.filtered.vcf.gz",
+		tbi="{sample}.sorted.q30.filtered.vcf.gz.tbi",
 		ref="bCalAnn1_v1.fasta"
 	output:
 		fasta="{sample}.consensus.fasta"
 	shell:
 		"cat {input.ref} | bcftools consensus {input.vcf} > {output.fasta}"
+		
+################################
+# Index new pseudorefs
+################################
+
+rule bwa_index_new:
+	input:
+		ref="{sample}.consensus.fasta"
+	output:
+		idx=multiext("{sample}", ".amb", ".ann", ".bwt", ".pac", ".sa")
+	shell:
+		"bwa index {input.ref} > {output.idx}"
+
+rule picard_dict_new:
+	input:
+		ref="{sample}.consensus.fasta"
+	output:
+		dict="{sample}.consensus.dict"
+	shell:
+		"java -jar $EBROOTPICARD/picard.jar CreateSequenceDictionary R={input.ref} O={output.dict}"
+
+rule samtools_index_new:
+	input:
+		ref="{sample}.consensus.fasta",
+		dict="{sample}.consensus.dict",
+		amb="{sample}.amb"
+	output:
+		fai="{sample}.consensus.fasta.fai"
+	shell:
+		"samtools faidx {input.ref} > {output.fai}"
 
