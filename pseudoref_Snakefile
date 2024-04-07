@@ -1,3 +1,10 @@
+#Snakfile to make a pseudoreference genome aligned to the Anna's hummingbird genome
+#Input: (1) Anna's hummingbird genome in fasta format, (2) fastq's from relatively high coverage whole genome sequencing
+#Output: fasta format pseudoreference from input fastq's
+#NOT used for the hummingbird AIMs pipeline, but could be useful someday (for example, if we get a blackchinned or rubythroated reference)
+
+sample=SRR12247329
+
 ################################
 # Index reference genome
 ################################

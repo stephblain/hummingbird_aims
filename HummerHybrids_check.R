@@ -1,3 +1,5 @@
+#quick check to make sure that the ref panel's AIMs make sense
+
 library(tidyverse); library(data.table)
 
 setwd("/scratch/user/sblain/hummer_aims/run_hmm_autosomes/")
