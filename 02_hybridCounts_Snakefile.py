@@ -18,6 +18,7 @@
 
 import pandas as pd
 
+#hummer_samples.tsv has one sample name per line, first line is 'sample'
 samples_df = pd.read_table('hummer_samples.tsv').set_index("sample", drop=False)
 SAMPLES= list(samples_df['sample'])
 
@@ -29,7 +30,7 @@ SAMPLES= list(samples_df['sample'])
 AIMS_LIST= "/scratch/user/sblain/hummer_aims/ref_panel/HummerRefPanel.f50.noUnderscores.aims"
 #positions file (chr and pos) with original chromosome names, including underscores
 AIMS_POS= "/scratch/user/sblain/hummer_aims/ref_panel/HummerRefPanel.f50.aims.pos"
-#path to ancestry infer
+#path to ancestry infer (download from https://github.com/Schumerlab/ancestryinfer)
 A_INFER="/scratch/user/sblain/tools/ancestryinfer"
 #tab-deliminted file with old scaffold name and new scaffold name on each line, to use for removing underscores from chromosome names
 RENAME_SCAFFOLDS="/scratch/user/sblain/hummer_aims/ref_panel/rename_hummer_scaffolds.txt"

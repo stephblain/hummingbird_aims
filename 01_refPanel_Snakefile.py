@@ -283,7 +283,7 @@ rule select_aims:
 		expand("{project}.{f_tag}.aims.pos",project=PROJECT,f_tag=F_TAG),
 		expand("{project}.{f_tag}.noUnderscores.aims",project=PROJECT,f_tag=F_TAG)
 	shell:
-		"python scripts/get_ref_counts.py {params.freq} {params.project} {input.counts1} {input.counts2}"
+		"python scripts/refCounts.py {params.freq} {params.project} {input.counts1} {input.counts2}"
 
 rule bp_to_cMs:
 	input:
